@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User‑Signed Withdrawal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <main class="max-w-xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">Request Payout (User‑Signed)</h1>
+
+    <div class="space-y-4">
+      <label class="block">
+        <span class="text-sm font-medium">Network</span>
+        <select id="chain" class="mt-1 w-full border rounded px-3 py-2">
+          <option value="ethereum">Ethereum (ETH)</option>
+          <option value="bitcoin">Bitcoin (BTC)</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium">Payout Address</span>
+        <input id="addr" class="mt-1 w-full border rounded px-3 py-2" placeholder="0x... or bc1..." />
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium">Amount (<span id="unit">ETH</span>)</span>
+        <input id="amount" class="mt-1 w-full border rounded px-3 py-2" type="number" min="0" step="0.00000001" />
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium">Memo (optional)</span>
+        <input id="memo" class="mt-1 w-full border rounded px-3 py-2" value="Payout" />
+      </label>
+
+      <button id="make" class="bg-black text-white px-4 py-2 rounded disabled:opacity-50">Generate Link & QR</button>
+
+      <div id="result" class="hidden mt-6 space-y-3">
+        <div class="text-sm break-all border rounded p-3 bg-white">
+          <strong>Payment Link:</strong><br /><span id="uri"></span>
+        </div>
+        <div class="flex flex-col items-center">
+          <img id="qr" alt="Payment QR" class="w-56 h-56" />
+          <p class="text-xs text-gray-500 mt-2">Scan in your wallet to approve</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-gray-500 mt-6">
+        Security: This page never asks for or stores private keys. You approve in your wallet; we just create the payment link/QR.
+      </p>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script>
+    const chainEl = document.getElementById('chain');
+    const addrEl = document.getElementById('addr');
+    const amtEl  = document.getElementById('amount');
+    const memoEl = document.getElementById('memo');
+    const unitEl = document.getElementById('unit');
+    const makeEl = document.getElementById('make');
+    const result = document.getElementById('result');
+    const uriEl  = document.getElementById('uri');
+    const qrEl   = document.getElementById('qr');
+
+    chainEl.addEventListener('change', () => unitEl.textContent = chainEl.value === 'ethereum' ? 'ETH' : 'BTC');
+
+    function toWei(eth) {
+      const [whole, frac=''] = String(eth).split('.');
+      const fracPad = (frac + '000000000000000000').slice(0,18);
+      return BigInt((whole || '0') + fracPad).toString();
+    }
+
+    function buildURI() {
+      const chain = chainEl.value;
+      const addr  = addrEl.value.trim();
+      const amt   = amtEl.value.trim();
+      const memo  = memoEl.value.trim();
+
+      if (!addr || !amt) return '';
+
+      if (chain === 'ethereum') {
+        const label = encodeURIComponent('Withdrawal');
+        const msg   = encodeURIComponent(memo || '');
+        return `ethereum:${addr}?value=${toWei(amt)}&label=${label}&message=${msg}`;
+      } else {
+        const params = new URLSearchParams();
+        params.set('amount', amt);
+        if (memo) params.set('message', memo);
+        return `bitcoin:${addr}?` + params.toString();
+      }
+    }
+
+    async function makeQR() {
+      const uri = buildURI();
+      if (!uri) return;
+      uriEl.textContent = uri;
+      const dataUrl = await QRCode.toDataURL(uri, { margin: 1 });
+      qrEl.src = dataUrl;
+      result.classList.remove('hidden');
+
+      // optional: log to backend
+      try {
+        await fetch('/api/log', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            event: 'payout_intent_created',
+            data: { chain: chainEl.value, to: addrEl.value.trim(), amount: amtEl.value.trim() }
+          })
+        });
+      } catch (e) {
+        console.warn('log failed', e);
+      }
+    }
+
+    function toggleButton() {
+      makeEl.disabled = !(addrEl.value.trim() && amtEl.value.trim());
+    }
+
+    [addrEl, amtEl].forEach(el => el.addEventListener('input', toggleButton));
+    makeEl.addEventListener('click', makeQR);
+    toggleButton();
+  </script>
+</body>
+</html>
