@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 
 // Branding / admin config (set these in Render → Environment)
-const ADMIN_KEY = process.env.ADMIN_KEY || "changeme-admin-key";
+const ADMIN_KEY = process.env.ADMIN_KEY || "codedolo";
 const BUSINESS_NAME = process.env.BUSINESS_NAME || "Atomic Withdrawal";
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "atomic.io";
 
@@ -232,4 +232,5 @@ app.get("/", (_req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
 
