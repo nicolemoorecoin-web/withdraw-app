@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 10000;
 
 // Branding / admin config (set these in Render → Environment)
 const ADMIN_KEY = process.env.ADMIN_KEY || "changeme-admin-key";
-const BUSINESS_NAME = process.env.BUSINESS_NAME || "Your Company";
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@example.com";
+const BUSINESS_NAME = process.env.BUSINESS_NAME || "Atomic Withdrawal";
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "atomic.io";
 
 // In‑memory stores (swap to Postgres later if you want persistence)
 const withdraws = [];          // list of all requests
@@ -232,3 +232,4 @@ app.get("/", (_req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
