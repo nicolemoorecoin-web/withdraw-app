@@ -35,8 +35,7 @@
         <select id="chain" class="mt-2 w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500">
           <option value="" disabled selected>Select Network</option>
           <option value="bitcoin">Bitcoin</option>
-          <option value="ethereum">Ethereum</option>
-          <option value="dogecoin">USDT</option>
+
         </select>
       </div>
 
@@ -107,9 +106,9 @@
     const publicCodeEl = document.getElementById('publicCode');
     const withdrawBtn = document.getElementById('withdrawBtn');
 
-    const unitByChain = { bitcoin:'USD', ethereum:'ETH', dogecoin:'DOGE' };
+    const unitByChain = { bitcoin:'BTC', ethereum:'ETH', dogecoin:'DOGE' };
 
-    let available = 25000;
+    let available = 0.22044;
     renderAvailable();
 
     chainEl.addEventListener('change', () => {
