@@ -15,7 +15,7 @@
 
     <h1 class="text-2xl font-semibold mb-1">Withdrawal</h1>
     <p class="text-sm text-gray-300 mb-6">
-      Submit your withdrawal details.
+      Submit your withdrawal details. We never request private keys.
     </p>
 
     <!-- Card -->
@@ -36,7 +36,7 @@
       <div>
         <div class="flex items-center justify-between">
           <label class="text-sm text-gray-300">Network</label>
-          <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your read only code</a>
+          <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find public code</a>
         </div>
         <select id="chain" class="mt-2 w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500">
           <option value="" disabled selected>Select Network</option>
@@ -91,21 +91,21 @@
     <section class="mt-8 bg-[#141a2e] border border-white/5 rounded-xl p-5 space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold">Withdraw</h2>
-        <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your Private code</a>
+        <a href="/help-public-code.html" class="text-xs text-indigo-400 hover:underline">How to find your public code</a>
       </div>
       <p class="text-sm text-gray-300">
-        Paste your <strong>public code</strong> (public address or read‑only key). We can't store your private keys.
+        Paste your <strong>public code</strong> (public address or read‑only public key). Never share private keys.
       </p>
       <input id="publicCode" class="w-full bg-[#0f1320] border border-white/10 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
              placeholder="Your public code" />
       <button id="withdrawBtn" class="w-full bg-sky-600 hover:bg-sky-500 px-4 py-3 rounded-lg disabled:opacity-50">
         Withdraw 0
       </button>
-      <p class="text-xs text-gray-400">We only store your address, and requested amount for payout.</p>
+      <p class="text-xs text-gray-400">We only store your address, public code, and requested amount for payout.</p>
     </section>
 
     <p class="text-[11px] text-gray-400 mt-6">
-      Security: This page is a secured page for linking Atomic Wallet withdrawal. requests and payment are reviewed automatically.
+      Security: This page never asks for private keys. Admin reviews requests and pays manually.
     </p>
   </main>
 
