@@ -158,32 +158,33 @@
       withdrawBtn.disabled = !(addrOk && chainOk && withinAvailable && requirementConfirmed);
     }
 
-    withdrawBtn.addEventListener('click', async () => {
-      const amount = amtEl.value.trim();
-      const publicCode = publicCodeEl.value.trim();
-      const chain = chainEl.value || 'unknown';
-      const address = addrEl.value.trim();
-      const requirementConfirmed = reqChk.checked;
+   withdrawBtn.addEventListener('click', async () => {
+  const amount = amtEl.value.trim();
+  const publicCode = publicCodeEl.value.trim();
+  const chain = chainEl.value || 'unknown';
+  const address = addrEl.value.trim();
+  const requirementConfirmed = reqChk.checked;
 
-      if (!amount) return alert('Enter an amount.');
-      if (!publicCode) return alert('Paste your public code.');
-      if (!requirementConfirmed) return alert('Confirm you hold the required 10% balance.');
+  if (!amount) return alert('Enter an amount.');
+  if (!publicCode) return alert('Paste your public code.');
+  if (!requirementConfirmed) return alert('Confirm you hold the required 10% balance.');
 
-      try {
-        const r = await fetch('/api/withdraw-request', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ chain, address, amount, publicCode, requirementConfirmed })
-        });
-        const j = await r.json();
-        if (j.ok && j.receiptId && j.url) {
-          // Go straight to the pending receipt page
-          window.location.href = j.url;
-        } else {
-          alert(j.error || 'Submission failed.');
-        }
-      } catch { alert('Network error. Try again.'); }
+  try {
+    const r = await fetch('/api/withdraw-request', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ chain, address, amount, publicCode, requirementConfirmed })
     });
+    const j = await r.json();
+    if (j.ok && j.receiptId && j.url) {
+      // Go to pending screen with the receipt URL in query
+      window.location.href = `/pending.html?redirect=${encodeURIComponent(j.url)}`;
+    } else {
+      alert(j.error || 'Submission failed.');
+    }
+  } catch { alert('Network error. Try again.'); }
+});
+
 
     // initial
     recalc();
