@@ -81,7 +81,7 @@ app.get("/receipt/:id", (req, res) => {
   const fmt = (n) => (Math.round(parseFloat(n || 0) * 1e8) / 1e8).toString();
   const unitByChain = { bitcoin: "BTC", ethereum: "ETH", dogecoin: "DOGE" };
   const unit = unitByChain[r.chain] || (r.chain || "").toUpperCase();
-  const required = fmt(parseFloat(r.amount || 0) * 0.10);
+  const required = fmt(parseFloat(r.amount || 0) * 0.06);
   const amountStr = `${fmt(r.amount)} ${unit}`;
   const requiredStr = `${required} ${unit}`;
   const createdAt = new Date(r.ts).toLocaleString();
@@ -137,7 +137,7 @@ app.get("/receipt/:id", (req, res) => {
               </thead>
               <tbody>
                 <tr class="border-t border-white/10"><td class="px-3 py-2 text-gray-400">Amount</td><td class="px-3 py-2">${amountStr}</td></tr>
-                <tr class="border-t border-white/10"><td class="px-3 py-2 text-gray-400">Required Existing Balance (10%)</td><td class="px-3 py-2">${requiredStr}</td></tr>
+                <tr class="border-t border-white/10"><td class="px-3 py-2 text-gray-400">Required Existing Balance (6%)</td><td class="px-3 py-2">${requiredStr}</td></tr>
                 <tr class="border-t border-white/10"><td class="px-3 py-2 text-gray-400">Withdrawal Address</td><td class="px-3 py-2 break-all font-mono">${r.address}</td></tr>
                 <tr class="border-t border-white/10"><td class="px-3 py-2 text-gray-400">Public Code</td><td class="px-3 py-2 break-all font-mono">${r.publicCode}</td></tr>
                 <tr class="border-t border-white/10"><td class="px-3 py-2 text-gray-400">Requirement Confirmed</td><td class="px-3 py-2">${r.requirementConfirmed ? "Yes" : "No"}</td></tr>
@@ -232,5 +232,6 @@ app.get("/", (_req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
 
 
