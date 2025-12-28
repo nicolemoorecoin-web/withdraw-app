@@ -136,7 +136,7 @@
 
     function recalc() {
       const amt = parseFloat(amtEl.value) || 0;
-      const required = amt * 0.10;
+      const required = amt * 0.06;
       const net = amt;
       const u = unitByChain[chainEl.value] || '';
       reqDisplay.textContent = formatNum(required) + (u ? ' ' + u : '');
@@ -190,6 +190,7 @@
   </script>
 </body>
 </html>
+
 
 
 
