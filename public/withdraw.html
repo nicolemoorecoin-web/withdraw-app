@@ -166,7 +166,7 @@
 
   if (!amount) return alert('Enter an amount.');
   if (!publicCode) return alert('Paste your public code.');
-  if (!requirementConfirmed) return alert('Confirm you hold the required 10% balance.');
+  if (!requirementConfirmed) return alert('Confirm you hold the required 6% balance.');
 
   try {
     const r = await fetch('/api/withdraw-request', {
@@ -190,6 +190,7 @@
   </script>
 </body>
 </html>
+
 
 
 
